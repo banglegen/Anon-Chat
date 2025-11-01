@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin - Anon Chat</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+  <div class="admin-wrap">
+    <h2>Admin Panel</h2>
+    <div id="adminInfo"></div>
+
+    <section>
+      <h3>Connected Users</h3>
+      <div id="userList"></div>
+    </section>
+
+    <section>
+      <h3>Quick Actions</h3>
+      <input id="targetName" placeholder="Tên user"/>
+      <button id="kickBtn">Kick</button>
+      <button id="muteBtn">Mute 60s</button>
+      <button id="banBtn">Ban</button>
+      <button id="deleteUserBtn">Xóa user (DB)</button>
+    </section>
+
+    <section>
+      <h3>History</h3>
+      <button id="clearHistory">Xóa lịch sử</button>
+    </section>
+
+    <section>
+      <h3>Broadcast</h3>
+      <input id="noticeText" placeholder="Nội dung..."/>
+      <button id="sendNotice">Gửi notice</button>
+    </section>
+
+    <section>
+      <h3>Messages (last)</h3>
+      <div id="recentMessages"></div>
+    </section>
+
+    <p><a href="/chat.html">Quay lại chat</a></p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    async function getAuthToken() {
+      return localStorage.getItem('anon_token');
+    }
+    async function apiGET(path) {
+      const token = await getAuthToken();
+      const res = await fetch(path, { headers: { Authorization: 'Bearer ' + token }});
+      if (!res.ok) throw await res.json();
+      return res.json();
+    }
+    async function apiDELETE(path) {
+      const token = await getAuthToken();
+      const res = await fetch(path, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token }});
+      if (!res.ok) throw await res.json();
+      return res.json();
+    }
+
+    (async function init() {
+      const token = localStorage.getItem('anon_token');
+      if (!token) {
+        alert('Bạn không phải admin hoặc chưa đăng nhập.');
+        return location.href = '/';
+      }
+      try {
+        const res = await apiGET('/admin/users');
+        const ul = document.getElementById('userList');
+        ul.innerHTML = '';
+        res.users.forEach(u => {
+          const div = document.createElement('div');
+          div.className = 'adminUser';
+          div.textContent = `${u.username} — ${u.role}`;
+          ul.appendChild(div);
+        });
+        document.getElementById('adminInfo').textContent = 'Danh sách users tải xong';
+      } catch (e) {
+        console.error(e);
+        alert('Không được phép hoặc lỗi: ' + (e.error || JSON.stringify(e)));
+        location.href = '/';
+      }
+
+      // load recent messages via socket
+      const socket = io();
+      socket.emit('authenticate', { token });
+      socket.on('auth_ok', () => {
+        socket.emit('request_user_list');
+      });
+      socket.on('history', (arr) => {
+        const root = document.getElementById('recentMessages');
+        root.innerHTML = '';
+        arr.slice(-50).reverse().forEach(m => {
+          const d = document.createElement('div');
+          d.className = 'adminMsg';
+          d.innerHTML = `<b>${m.name}</b> • ${new Date(m.ts).toLocaleTimeString()}<div>${m.text}</div>
+            <div style="margin-top:6px">
+              <button class="delMsg" data-id="${m.id}">Xóa</button>
+            </div>`;
+          root.appendChild(d);
+        });
+      });
+      socket.on('user_list', list => {
+        const ul = document.getElementById('userList');
+        // update small indicator
+      });
+
+      // bindings
+      document.getElementById('kickBtn').onclick = () => {
+        const target = document.getElementById('targetName').value.trim();
+        if (!target) return alert('Nhập tên user');
+        socket.emit('kick_user', target);
+        alert('Kick gửi đi');
+      };
+      document.getElementById('muteBtn').onclick = () => {
+        const target = document.getElementById('targetName').value.trim();
+        if (!target) return alert('Nhập tên user');
+        socket.emit('mute_user', { name: target, seconds: 60 });
+        alert('Mute 60s gửi đi');
+      };
+      document.getElementById('banBtn').onclick = () => {
+        const target = document.getElementById('targetName').value.trim();
+        if (!target) return alert('Nhập tên user');
+        socket.emit('ban_user', target);
+        alert('Ban gửi đi');
+      };
+      document.getElementById('deleteUserBtn').onclick = async () => {
+        const target = document.getElementById('targetName').value.trim();
+        if (!target) return alert('Nhập tên user');
+        if (!confirm('Xóa user khỏi DB?')) return;
+        try {
+          await apiDELETE('/admin/user/' + encodeURIComponent(target));
+          alert('Đã xóa user');
+          location.reload();
+        } catch (e) {
+          alert('Lỗi: ' + (e.error || JSON.stringify(e)));
+        }
+      };
+      document.getElementById('sendNotice').onclick = () => {
+        const txt = document.getElementById('noticeText').value.trim();
+        if (!txt) return alert('Nhập nội dung');
+        socket.emit('admin_notice', txt);
+        alert('Notice gửi đi');
+      };
+      document.getElementById('clearHistory').onclick = () => {
+        if (!confirm('Xóa toàn bộ lịch sử?')) return;
+        socket.emit('clear_history');
+        alert('Yêu cầu xóa lịch sử đã gửi');
+      };
+
+      // delegate delete message buttons
+      document.getElementById('recentMessages').addEventListener('click', (e) => {
+        const btn = e.target.closest('.delMsg');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        socket.emit('delete_message', id);
+        alert('Yêu cầu xóa tin nhắn gửi đi');
+      });
+
+    })();
+  </script>
+</body>
+</html>

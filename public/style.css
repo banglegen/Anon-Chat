@@ -1,22 +1,21 @@
+/* style.css */
 *{box-sizing:border-box}
-
-/* body nền xanh tím đen dịu mắt */
 body{
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: linear-gradient(180deg,#0a1a2f,#1a223f); /* xanh tím đen dịu mắt */
+  background: linear-gradient(180deg,#0a1a2f,#1a223f);
   margin:0;
   padding:20px;
   display:flex;
   justify-content:center;
   align-items:flex-start;
   min-height:100vh;
-  color: #e0e0e0; /* chữ dịu mắt */
+  color: #e0e0e0;
 }
 
 .container{
   width:100%;
   max-width:720px;
-  background:#1f2937; /* nền container tối */
+  background:#1f2937;
   border-radius:12px;
   box-shadow:0 6px 30px rgba(0,0,0,0.5);
   padding:16px;
@@ -33,98 +32,39 @@ header{
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  gap:2px;
+  gap:4px;
 }
 
 h1{margin:0;font-size:18px;color:#fff;}
 .name{font-size:13px;color:#bbb;}
 
-#chat{
-  height:60vh; 
-  overflow:auto; 
-  border:1px solid #333; 
-  padding:12px; 
-  border-radius:12px; 
-  background:#111827; /* nền chat tối */
-}
-
-#messages{
-  list-style:none;
-  padding:0;
-  margin:0;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.message{
-  padding:10px 14px;
-  border-radius:12px;
-  background:linear-gradient(135deg,#2e3a59,#1f2a45);
-  box-shadow:0 2px 4px rgba(0,0,0,0.5);
-  transition:transform 0.1s;
-  color: #e0e0e0;
-}
-
+#chat{height:60vh; overflow:auto; border:1px solid #333; padding:12px; border-radius:12px; background:#111827;}
+#messages{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.message{padding:10px 14px;border-radius:12px;background:linear-gradient(135deg,#2e3a59,#1f2a45);box-shadow:0 2px 4px rgba(0,0,0,0.5);transition:transform 0.1s;color: #e0e0e0;}
 .message:hover{transform:scale(1.02)}
 .message.me{background:linear-gradient(135deg,#3b506e,#2a3b5c); color:#fff;}
 
-.meta{
-  font-size:11px;
-  color:#aaa;
-  margin-bottom:6px;
-}
+.meta{font-size:11px;color:#aaa;margin-bottom:6px}
+.msgText{white-space:pre-wrap;line-height:1.4}
+.replyTo{font-size:11px;color:#77c0ff;margin-bottom:4px;font-style:italic}
+.notice{margin-top:8px;font-size:13px;color:#999}
 
-.msgText{
-  white-space:pre-wrap;
-  line-height:1.4;
-}
-
-.replyTo{
-  font-size:11px;
-  color:#77c0ff; /* reply dịu mắt */
-  margin-bottom:4px;
-  font-style:italic;
-}
-
-.notice{
-  margin-top:8px;
-  font-size:13px;
-  color:#999;
-}
-
-form{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-}
-
-textarea#input{
-  flex:1;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #555;
-  resize:none;
-  line-height:1.4;
-  font-family: inherit;
-  background:#1f2937; /* nền input tối */
-  color:#e0e0e0;
-}
-
-button{
-  padding:10px 16px;
-  border-radius:12px;
-  border:0;
-  background:#5b6df6;
-  color:white;
-  cursor:pointer;
-  transition:background 0.2s;
-}
-
+form{display:flex;gap:8px;margin-top:12px}
+textarea#input{flex:1;padding:12px;border-radius:12px;border:1px solid #555;resize:none;line-height:1.4;font-family: inherit;background:#1f2937;color:#e0e0e0}
+button{padding:10px 16px;border-radius:12px;border:0;background:#5b6df6;color:white;cursor:pointer;transition:background 0.2s}
 button:hover{background:#4a55d0}
 button#changeNameBtn{background:#777}
+button#goAdminBtn{background:#ff9f43}
 
-@media (max-width:600px){
-  .container{padding:12px}
-  #chat{height:55vh}
-}
+.auth-wrap{display:flex;justify-content:center;align-items:center;height:100vh}
+.auth-box{background:#0f1724;padding:24px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);width:320px;display:flex;flex-direction:column;gap:10px}
+.auth-box input{padding:10px;border-radius:8px;border:1px solid #333;background:#111827;color:#e0e0e0}
+.auth-box button{padding:10px;border-radius:8px;border:0;background:#5b6df6;color:#fff;cursor:pointer}
+.auth-msg{color:#ffcccb}
+
+.admin-wrap{max-width:720px;margin:20px auto;background:#1b2430;padding:20px;border-radius:10px}
+.adminUser{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.adminMsg{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.hidden{display:none}
+
+@media (max-width:600px){ .container{padding:12px} #chat{height:55vh} }

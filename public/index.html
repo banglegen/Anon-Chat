@@ -3,33 +3,73 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Anon Chat 💬</title>
+  <title>Anon Chat - Đăng nhập / Đăng ký</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>💬 Anon Chat</h1>
-      <div class="headerRight">
-        <div id="myName" class="name">Đang kết nối...</div>
-        <div id="userCount" class="name">👥 0 người đang trong phòng</div>
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <h2>Anon Chat</h2>
+      <input id="username" placeholder="Tên người dùng" />
+      <input id="password" type="password" placeholder="Mật khẩu" />
+      <div class="row">
+        <button id="loginBtn">Đăng nhập</button>
+        <button id="registerBtn">Đăng ký</button>
       </div>
-    </header>
-
-    <main id="chat">
-      <ul id="messages"></ul>
-    </main>
-
-    <form id="form" autocomplete="off">
-      <textarea id="input" placeholder="Viết gì đó..." maxlength="1000" rows="2"></textarea>
-      <button type="submit">Gửi</button>
-      <button type="button" id="changeNameBtn">Đổi tên</button>
-    </form>
-
-    <div id="noticeArea" class="notice"></div>
+      <p id="authMsg" class="auth-msg"></p>
+    </div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/client.js"></script>
+  <script>
+    async function postJSON(url, data) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (!res.ok) throw json;
+      return json;
+    }
+
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const authMsg = document.getElementById('authMsg');
+
+    document.getElementById('registerBtn').onclick = async () => {
+      authMsg.textContent = '';
+      const u = usernameEl.value.trim();
+      const p = passwordEl.value.trim();
+      if (!u || !p) return authMsg.textContent = 'Nhập đủ thông tin';
+      try {
+        const r = await postJSON('/register', { username: u, password: p });
+        authMsg.textContent = r.message || 'Đăng ký thành công. Đăng nhập ngay.';
+      } catch (e) {
+        authMsg.textContent = e.error || 'Lỗi đăng ký';
+      }
+    };
+
+    document.getElementById('loginBtn').onclick = async () => {
+      authMsg.textContent = '';
+      const u = usernameEl.value.trim();
+      const p = passwordEl.value.trim();
+      if (!u || !p) return authMsg.textContent = 'Nhập đủ thông tin';
+      try {
+        const r = await postJSON('/login', { username: u, password: p });
+        localStorage.setItem('anon_token', r.token);
+        localStorage.setItem('anon_user', r.username);
+        localStorage.setItem('anon_role', r.role);
+        location.href = '/chat.html';
+      } catch (e) {
+        authMsg.textContent = e.error || 'Lỗi đăng nhập';
+      }
+    };
+
+    [usernameEl, passwordEl].forEach(el => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('loginBtn').click();
+      });
+    });
+  </script>
 </body>
 </html>

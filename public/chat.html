@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anon Chat</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💬 Anon Chat</h1>
+      <div class="headerRight">
+        <div id="myName" class="name">Đang kết nối...</div>
+        <div id="userCount" class="name">👥 0</div>
+        <div id="adminArea" class="name"></div>
+      </div>
+    </header>
+
+    <main id="chat">
+      <ul id="messages"></ul>
+    </main>
+
+    <form id="form" autocomplete="off">
+      <textarea id="input" placeholder="Viết gì đó..." maxlength="1000" rows="2"></textarea>
+      <button type="submit">Gửi</button>
+      <button type="button" id="changeNameBtn">Đổi tên</button>
+      <button type="button" id="goAdminBtn" style="display:none">Trang Admin</button>
+    </form>
+
+    <div id="noticeArea" class="notice"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/client.js"></script>
+</body>
+</html>
